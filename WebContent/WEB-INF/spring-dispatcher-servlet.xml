@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:mvc="http://www.springframework.org/schema/mvc"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="
+        http://www.springframework.org/schema/beans    
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+   
+    <!-- Here we will configure the classes working as Handler Mapping, Controller Class
+     View REsolver using <bean> element
+    
+     <bean id="HandlerMapping"
+     class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping" />
+    <bean name="/mphasis199SH" class="com.mphasis.springmvcdemo.Myfirstcontroller" />  -->
+    <context:component-scan base-package="com.mphasis.covidvaccine.*" />
+    <mvc:annotation-driven />
+    <bean id="ViewResolver"
+     class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+   
+    <property name="prefix">
+    <value>/WEB-INF/view/</value>
+    </property>
+    <property name="suffix">
+    <value>.jsp</value>
+    </property>
+    </bean>
+    <!-- All below are the entries added for Spring Hibernate Integration --> 
+       
+       <!-- Define the Database DataSource where we will specify Database 
+       		Connection Information -->
+       		
+       <bean id="myDataSource" 
+             class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+              
+             <property name="driverClass" value="com.mysql.cj.jdbc.Driver" />
+             <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/myDB?useSSL=false" />
+             <property name="user" value="scott" />
+             <property name="password" value="tiger" />
+             
+             <!-- 
+             <property name="driverClass" value="oracle.jdbc.driver.OracleDriver" />
+             <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+             <property name="user" value="scott" />
+             <property name="password" value="tiger" />
+             -->
+             <!-- Coonection Pool Properties -->
+             <property name="minPoolSize" value="1" />
+             <property name="maxPoolSize" value="20" />
+       </bean>
+        
+       <!-- Setting up the Hibernate Session Factory --> 
+       
+       <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+       
+		       <property name="dataSource" ref="myDataSource" />
+		       <property name="packagesToScan" value="com.mphasis.covidvaccine.entity" />
+		       
+		       <property name="hibernateProperties">
+		       			<props>
+		       					<!-- Here we will specify Database Specific Information - Hibernate Dialect -->
+		       					 <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop> 
+		       					 <!-- <prop key="hibernate.dialect">org.hibernate.dialect.Oracle9Dialect</prop> -->
+		       					 <!-- <prop key="hibernate.show_sql">true</prop>-->
+		       			</props>
+		       </property>
+       </bean>
+       
+       <!-- Setting up Hibernate Transaction Manager -->
+       
+       <bean id="myTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+       
+       			<property name="sessionFactory" ref="sessionFactory" />
+       
+       </bean>
+       
+       
+       <!-- Set up the annotational support for the transaction management -->
+ 		<tx:annotation-driven transaction-manager="myTransactionManager" />		
+</beans>  
